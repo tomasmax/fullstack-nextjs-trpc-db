@@ -8,6 +8,7 @@ const t = initTRPC.create({
 });
 
 export const trpcRouter = t.router({
+  // example endpoint...
   getPosts: t.procedure.query(async ({ ctx, input }) => {
     return await prismaClient.post.findMany();
   }),

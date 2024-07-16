@@ -4,7 +4,8 @@ import { trpcReact } from "@/trpc/trpcReact";
 import { Typography } from "@mui/material";
 
 export default function Home() {
-  const { data } = trpcReact.getPosts.useQuery();
+  // example query...
+  // const { data } = trpcReact.getPosts.useQuery();
 
   return (
     <main>
