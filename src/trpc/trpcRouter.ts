@@ -15,6 +15,7 @@ export const trpcRouter = t.router({
       },
     });
   }),
+  // Performance: comments count to have a more efficient query not joining all comments
   infinitePosts: t.procedure
     .input(
       z.object({
@@ -31,10 +32,15 @@ export const trpcRouter = t.router({
         skip: cursor ? 1 : 0,
         cursor,
         include: {
-          comments: true,
+          _count: {
+            select: { comments: true }
+          }
         },
         orderBy: {
           id: 'asc',
+        },
+        where: {
+          published: true,
         },
       });
 
@@ -42,6 +48,23 @@ export const trpcRouter = t.router({
         posts,
         nextCursor: posts.length === limit ? posts[posts.length - 1].id : null,
       };
+    }),
+  // query comments of a certain post only when needed to reduce data transfer and improve performance
+  getCommentsByPostId: t.procedure
+    .input(
+      z.object({
+        postId: z.number(),
+      })
+    )
+    .query(async ({ input }) => {
+      return await prismaClient.comment.findMany({
+        where: {
+          postId: input.postId,
+        },
+        orderBy: {
+          id: 'asc',
+        },
+      });
     }),
   addComment: t.procedure
     .input(
