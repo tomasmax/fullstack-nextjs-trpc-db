@@ -36,8 +36,10 @@ I would add components testing with vitest, to cover al unit testing. And for a 
 
 ## Scalability of the Solution
 
-The current implementation with `react-virtualized` provides good client-side scalability for rendering large lists of posts. Otherwise when a lot of posts were loaded into the DOM the web interactivity was very slow.
+The current implementation with `react-virtualized` provides good client-side scalability for rendering large lists of posts. Otherwise when a lot of posts were loaded into the DOM the web interactivity was very slow. Infinite scroll is used.
 https://github.com/bvaughn/react-virtualized/blob/master/docs/List.md
+
+It's more difficult to handle user interactions, as we need to keep track of the height of the rows in this case, but this
 
 ## Web Performance
 
