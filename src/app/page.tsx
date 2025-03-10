@@ -1,5 +1,6 @@
 "use client";
 
+import PostList from "@/components/PostList";
 import { trpcReact } from "@/trpc/trpcReact";
 import { Typography } from "@mui/material";
 
@@ -12,6 +13,7 @@ export default function Home() {
       <Typography variant="h4" component={"h1"}>
         Posts
       </Typography>
+      <PostList />
     </main>
   );
 }
