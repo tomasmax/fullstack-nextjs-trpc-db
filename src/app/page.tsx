@@ -39,11 +39,8 @@ export default function Home() {
     <main>
       <Box
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
           width: "100%",
-          padding: 2,
+          height: "100vh",
         }}
       >
         <Typography

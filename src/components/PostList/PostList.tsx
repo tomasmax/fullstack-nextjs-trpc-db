@@ -162,8 +162,9 @@ const PostList: React.FC<PostListProps> = ({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        height: "100vh",
+        height: "100%",
         width: "100%",
+        padding: 0,
       }}
     >
       <AutoSizer style={{ width: "100%" }}>
@@ -178,7 +179,7 @@ const PostList: React.FC<PostListProps> = ({
             rowHeight={cache.rowHeight}
             rowRenderer={renderRow}
             rowCount={localPosts.length}
-            overscanRowCount={3} // // PERFORMANCE: Balance between smooth scrolling and memory usage https://github.com/bvaughn/react-virtualized/blob/master/docs/overscanUsage.md
+            overscanRowCount={3} // PERFORMANCE: Balance between smooth scrolling and memory usage https://github.com/bvaughn/react-virtualized/blob/master/docs/overscanUsage.md
             onScroll={handleScroll}
             // Infinite scroll handling to detect when the user is near the end of the list
             onRowsRendered={({ stopIndex }) => {
