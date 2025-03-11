@@ -71,7 +71,11 @@ const CommentInput: React.FC<CommentInputProps> = ({
         style={{ marginBottom: 8 }}
         size="small"
       />
-      <Button onClick={handleSubmit} disabled={isLoading || !comment.trim()}>
+      <Button
+        variant="contained"
+        onClick={handleSubmit}
+        disabled={isLoading || !comment.trim()}
+      >
         {isLoading ? "Sending..." : "Submit"}
       </Button>
     </Box>
