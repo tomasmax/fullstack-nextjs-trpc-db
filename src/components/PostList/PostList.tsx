@@ -13,12 +13,12 @@ import {
   LoadingOverlay,
   LoadingMore,
 } from "@/components/LoadingIndicators/LoadingIndicators";
-import { PostWithCommentsCount } from "@/types/prisma";
+import { PostExtended } from "@/types/prisma";
 
 interface PostListProps {
   postsData: {
     pages: Array<{
-      posts: PostWithCommentsCount[];
+      posts: PostExtended[];
     }>;
   };
   isLoading: boolean;
@@ -27,12 +27,14 @@ interface PostListProps {
   fetchNextPage: () => Promise<unknown>;
 }
 
+const ROW_DEFAULT_HEIGHT = 400;
+
 // Persistent cache of the rows, using CellMeasurer, to dynamically measure the height of the rows
 // https://blog.logrocket.com/rendering-large-lists-react-virtualized/
 // https://github.com/bvaughn/react-virtualized/blob/master/docs/CellMeasurer.md
 const cache = new CellMeasurerCache({
   fixedWidth: true,
-  defaultHeight: 400,
+  defaultHeight: ROW_DEFAULT_HEIGHT,
   minHeight: 250,
 });
 
@@ -43,9 +45,8 @@ const PostList: React.FC<PostListProps> = ({
   hasNextPage,
   fetchNextPage,
 }) => {
-  const [localPosts, setLocalPosts] = useState<PostWithCommentsCount[]>([]);
+  const [localPosts, setLocalPosts] = useState<PostExtended[]>([]);
   const listRef = useRef<List>(null);
-  const prevPostCountRef = useRef<number>(0);
   const lastMeasuredPositionRef = useRef<number>(0);
 
   // Create a persistent ref to track which posts have their comments open, this way open comments are not closed when virtualized list elements are mounted/unmounted
@@ -53,31 +54,29 @@ const PostList: React.FC<PostListProps> = ({
   const openCommentsRef = useRef<Record<number, boolean>>({});
 
   useEffect(() => {
-    if (postsData) {
-      const newPosts = postsData.pages.flatMap(
-        (page: { posts: PostWithCommentsCount[] }) => page.posts
-      );
-      const prevPostCount = prevPostCountRef.current;
+    if (!postsData) return;
 
-      if (newPosts.length !== localPosts.length) {
-        setLocalPosts(newPosts);
-        prevPostCountRef.current = newPosts.length;
+    const newPosts = postsData.pages.flatMap((page) => page.posts);
+    const currentCount = localPosts.length;
 
-        if (prevPostCount > 0 && newPosts.length > prevPostCount) {
-          // delay to improve INP performance, see https://web.dev/optimize-inp/
-          setTimeout(() => {
-            for (let i = prevPostCount; i < newPosts.length; i++) {
-              cache.clear(i, 0);
-            }
+    // Only update if the post count has changed
+    if (newPosts.length !== currentCount) {
+      setLocalPosts(newPosts);
 
-            if (listRef.current) {
-              listRef.current.recomputeRowHeights(prevPostCount);
-            }
-          });
-        }
+      // If we're adding new posts (not just replacing or removing)
+      if (newPosts.length > currentCount && currentCount > 0) {
+        setTimeout(() => {
+          // Clear cache only for new rows
+          for (let i = currentCount; i < newPosts.length; i++) {
+            cache.clear(i, 0);
+          }
+
+          // Recompute row heights from where new posts were added
+          listRef.current?.recomputeRowHeights(currentCount);
+        });
       }
     }
-  }, [postsData, localPosts.length]);
+  }, [localPosts.length, postsData]);
 
   // PERFORMANCE: Debounce resize handlers to prevent unnecessary recalculations
   useEffect(() => {
@@ -123,12 +122,8 @@ const PostList: React.FC<PostListProps> = ({
         columnIndex={0}
         rowIndex={index}
       >
-        {({
-          registerChild,
-        }: {
-          registerChild: (element: HTMLElement | null) => void;
-        }) => (
-          <div
+        {({ registerChild }) => (
+          <Box
             ref={registerChild}
             style={{
               ...style,
@@ -145,8 +140,9 @@ const PostList: React.FC<PostListProps> = ({
               onCommentVisibilityChange={(isVisible) =>
                 handleCommentVisibilityChange(post.id, isVisible)
               }
+              authorName={post.author?.name || "Unknown author"}
             />
-          </div>
+          </Box>
         )}
       </CellMeasurer>
     );
@@ -191,7 +187,7 @@ const PostList: React.FC<PostListProps> = ({
                 fetchNextPage();
               }
             }}
-            estimatedRowSize={400}
+            estimatedRowSize={ROW_DEFAULT_HEIGHT}
             scrollToAlignment="start"
           />
         )}

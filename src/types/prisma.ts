@@ -1,6 +1,7 @@
-import { Post } from '@prisma/client';
+import { Post, User } from '@prisma/client';
 
-export type PostWithCommentsCount = Post & {
+export type PostExtended = Post & {
+  author: User | null;
   _count: {
     comments: number;
   };

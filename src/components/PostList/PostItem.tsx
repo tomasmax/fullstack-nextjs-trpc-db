@@ -2,13 +2,14 @@ import React, { memo, useState, useEffect } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import CommentSection from "@/components/Comment/CommentSection";
 import CommentInput from "@/components/Comment/CommentInput";
-import { PostWithCommentsCount } from "@/types/prisma";
+import { PostExtended } from "@/types/prisma";
 
 interface PostItemProps {
-  post: PostWithCommentsCount;
+  post: PostExtended;
   onHeightChange: () => void;
   initialShowComments?: boolean;
   onCommentVisibilityChange?: (isVisible: boolean) => void;
+  authorName: string;
 }
 
 const PostItem = memo(
@@ -17,6 +18,7 @@ const PostItem = memo(
     onHeightChange,
     initialShowComments = false,
     onCommentVisibilityChange,
+    authorName,
   }: PostItemProps) => {
     const [showComments, setShowComments] = useState(initialShowComments);
     const [comment, setComment] = useState("");
@@ -41,7 +43,7 @@ const PostItem = memo(
 
     const handleToggleComments = () => {
       const newVisibility = !showComments;
-      setShowComments(newVisibility);
+      setShowComments((prevState) => !prevState);
 
       // Notify parent about visibility change for persistence row height
       if (onCommentVisibilityChange) {
@@ -91,6 +93,10 @@ const PostItem = memo(
           }}
         >
           {post.content}
+        </Typography>
+
+        <Typography variant="subtitle1" color="text.secondary">
+          By: {authorName}
         </Typography>
 
         <Box sx={{ marginBottom: 2 }}>

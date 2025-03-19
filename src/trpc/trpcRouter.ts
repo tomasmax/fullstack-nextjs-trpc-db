@@ -34,7 +34,8 @@ export const trpcRouter = t.router({
         include: {
           _count: {
             select: { comments: true }
-          }
+          },
+          author: true
         },
         orderBy: {
           id: 'asc',
